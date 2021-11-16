@@ -1,7 +1,25 @@
 const express = require("express");
 const app = express();
 
+// Importo e inicializo la instancia. Método Asíncrono
+const Contenedor = require("./clase");
+const productos = new Contenedor("productos.txt");
+productos.init();
+
 const PORT = process.env.PORT || 8080;
+
+app
+  .get("/productos", async (req, res) => res.send(await productos.getAll()))
+  .get("/productoRandom", async (req, res) => {
+    const maxId = productos.nextId - 1;
+    const randomId = Math.floor(Math.random() * maxId + 1);
+    const product = await productos.getById(randomId);
+    product
+      ? res.send(product)
+      : res.send({
+          message: `No se encuentra el producto con el id:${randomId}`
+        });
+  });
 
 const server = app.listen(PORT, () =>
   console.log(`Servidor http escuchando en puerto ${server.address().port}`)
